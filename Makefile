@@ -19,6 +19,6 @@ libmavalloc.a: mavalloc.o
 	ar rcs libmavalloc.a mavalloc.o
 
 clean:
-	rm -f *.o *.a 
+	rm -f *.o *.a unit_test
 
 .PHONY: all clean

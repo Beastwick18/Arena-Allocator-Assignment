@@ -89,3 +89,12 @@ void * mavalloc_alloc( size_t size );
  */
 void mavalloc_free(void *ptr);
 
+/*
+ * \brief Allocator size
+ *
+ * Return the number of nodes in the allocators linked list 
+ *
+ * \return The size of the allocator linked list 
+ */
+int mavalloc_size( );
+

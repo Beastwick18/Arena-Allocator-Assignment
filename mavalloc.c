@@ -43,3 +43,10 @@ void mavalloc_free( void * ptr )
 {
   return;
 }
+
+int mavalloc_size( )
+{
+  int number_of_nodes = 0;
+
+  return number_of_nodes;
+}

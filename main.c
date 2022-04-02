@@ -15,6 +15,7 @@ int test_case_1()
   int size = mavalloc_size();
 
   TINYTEST_EQUAL( size, 1); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -39,6 +40,7 @@ int test_case_2()
   int size = mavalloc_size();
   TINYTEST_EQUAL( size, 1 ); 
 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -63,6 +65,7 @@ int test_case_3()
   int size = mavalloc_size();
   TINYTEST_EQUAL( size, 1 ); 
 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -81,6 +84,7 @@ int test_case_4()
   int size = mavalloc_size();
 
   TINYTEST_EQUAL( size, 3); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -132,6 +136,7 @@ int test_case_5()
   TINYTEST_ASSERT( ptr3 ); 
 
   TINYTEST_EQUAL( ptr3, ptr4 ); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -159,6 +164,7 @@ int test_case_6()
   char * ptr3 = ( char * ) mavalloc_alloc ( 1000 );
 
   TINYTEST_EQUAL( ptr1, ptr3 ); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -191,6 +197,7 @@ int test_case_7()
   TINYTEST_ASSERT( ptr3 ); 
 
   TINYTEST_EQUAL( ptr2, ptr3 ); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -205,6 +212,7 @@ int test_case_8()
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
   TINYTEST_EQUAL( ptr, NULL ); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -219,6 +227,7 @@ int test_case_9()
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
   TINYTEST_EQUAL( ptr, NULL ); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -233,6 +242,7 @@ int test_case_10()
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
   TINYTEST_EQUAL( ptr, NULL ); 
+  mavalloc_destroy( );
   return 1;
 }
 
@@ -283,8 +293,26 @@ int test_case_11()
   TINYTEST_ASSERT( ptr3 ); 
 
   TINYTEST_EQUAL( ptr3, ptr4 ); 
+  mavalloc_destroy( );
   return 1;
 }
+
+/*
+*
+* TEST CASE 12: Test destroy
+*
+*/
+int test_case_12()
+{
+  mavalloc_init( 65535, BEST_FIT );
+  mavalloc_destroy( );
+
+  int size = mavalloc_size();
+  printf("%d %d", size, 0 );
+  TINYTEST_EQUAL( size, 0); 
+  return 1;
+}
+
 
 int tinytest_setup(const char *pName)
 {
@@ -313,6 +341,7 @@ TINYTEST_START_SUITE(MavAllocTestSuite);
   TINYTEST_ADD_TEST(test_case_9,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_10,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_11,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_12,tinytest_setup,tinytest_teardown);
 TINYTEST_END_SUITE();
 
 TINYTEST_MAIN_SINGLE_SUITE(MavAllocTestSuite);

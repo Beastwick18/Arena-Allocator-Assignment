@@ -92,45 +92,46 @@ int test_case_4()
 */
 int test_case_5()
 {
-  mavalloc_init( 65535, NEXT_FIT );
+  mavalloc_init( 4144, NEXT_FIT );
 
-  char * ptr1  = ( char * ) mavalloc_alloc ( 10 );
-  char * buf1  = ( char * ) mavalloc_alloc ( 1 );
-  char * ptr2  = ( char * ) mavalloc_alloc ( 1000 );
-  char * buf2  = ( char * ) mavalloc_alloc ( 1 );
-  char * ptr3  = ( char * ) mavalloc_alloc ( 6000 );
-  char * buf3  = ( char * ) mavalloc_alloc ( 1 );
-  char * ptr4  = ( char * ) mavalloc_alloc ( 1000 );
-  char * buf4  = ( char * ) mavalloc_alloc ( 1 );
+  char * ptr1 = ( char * ) mavalloc_alloc ( 1024 );
+  char * buf1 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr6 = ( char * ) mavalloc_alloc ( 16 );
+  char * buf2 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr2 = ( char * ) mavalloc_alloc ( 2048 );
+  char * buf3 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr7 = ( char * ) mavalloc_alloc ( 16 );
+  char * buf4 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr3 = ( char * ) mavalloc_alloc ( 1024 );
 
-  char * right_answer = ptr4;
+  TINYTEST_ASSERT( ptr1 ); 
+  TINYTEST_ASSERT( ptr2 ); 
+  TINYTEST_ASSERT( ptr3 ); 
+  TINYTEST_ASSERT( ptr6 ); 
+  TINYTEST_ASSERT( ptr7 ); 
 
+  mavalloc_free( ptr1 ); 
+  mavalloc_free( ptr2 ); 
+  mavalloc_free( ptr3 ); 
 
-  ptr1 = ptr1;
-  ptr2 = ptr2;
-  ptr3 = ptr3;
-  ptr4 = ptr4;
+  char * ptr5 = ( char * ) mavalloc_alloc ( 2000 );
 
+  TINYTEST_ASSERT( ptr5 ); 
+
+  ptr5 = ptr5;
+  ptr7 = ptr7;
+  ptr6 = ptr6;
   buf1 = buf1;
   buf2 = buf2;
   buf3 = buf3;
   buf4 = buf4;
 
-  mavalloc_free( ptr1 );
-  mavalloc_free( ptr2 );
-  mavalloc_free( ptr3 );
-  mavalloc_free( ptr4 );
+  char * ptr4 = ( char * ) mavalloc_alloc ( 1000 );
 
+  TINYTEST_ASSERT( ptr4 ); 
+  TINYTEST_ASSERT( ptr3 ); 
 
-  char * ptr5 = ( char * ) mavalloc_alloc( 6000 );
-
-  ptr5 = ptr5;
-
-  char * ptr6 = ( char * ) mavalloc_alloc( 1000 );
-
-  ptr6 = ptr6;
-
-  TINYTEST_EQUAL( ptr6, right_answer ); 
+  TINYTEST_EQUAL( ptr3, ptr4 ); 
   return 1;
 }
 
@@ -254,11 +255,19 @@ int test_case_11()
   char * buf4 = ( char * ) mavalloc_alloc ( 4 );
   char * ptr3 = ( char * ) mavalloc_alloc ( 1024 );
 
+  TINYTEST_ASSERT( ptr1 ); 
+  TINYTEST_ASSERT( ptr2 ); 
+  TINYTEST_ASSERT( ptr3 ); 
+  TINYTEST_ASSERT( ptr6 ); 
+  TINYTEST_ASSERT( ptr7 ); 
+
   mavalloc_free( ptr1 ); 
   mavalloc_free( ptr2 ); 
   mavalloc_free( ptr3 ); 
 
-  char * ptr5 = ( char * ) mavalloc_alloc ( 6000 );
+  char * ptr5 = ( char * ) mavalloc_alloc ( 2000 );
+
+  TINYTEST_ASSERT( ptr5 ); 
 
   ptr5 = ptr5;
   ptr7 = ptr7;
@@ -269,6 +278,9 @@ int test_case_11()
   buf4 = buf4;
 
   char * ptr4 = ( char * ) mavalloc_alloc ( 1000 );
+
+  TINYTEST_ASSERT( ptr4 ); 
+  TINYTEST_ASSERT( ptr3 ); 
 
   TINYTEST_EQUAL( ptr3, ptr4 ); 
   return 1;

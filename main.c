@@ -1,6 +1,7 @@
 #include "mavalloc.h"
 #include "tinytest.h"
 #include <stdio.h>
+#include <string.h>
 
 /*
 *
@@ -436,6 +437,7 @@ int test_case_13()
   mavalloc_destroy( );
   return 1;
 }
+
 /*
 *
 * TEST CASE 14: Test Best Fit and splitting free blocks
@@ -463,6 +465,7 @@ int test_case_14()
   mavalloc_destroy( );
   return 1;
 }
+
 /*
 *
 * TEST CASE 15: Test Worst Fit and splitting free blocks
@@ -490,6 +493,150 @@ int test_case_15()
   return 1;
 }
 
+/*
+*
+* TEST CASE 16: Test Worst Fit and using the memory we were given 
+*
+*/
+int test_case_16()
+{
+  mavalloc_init( 65535, WORST_FIT );
+
+  char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
+  char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
+
+  // If you fail here then your allocation on line 475 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you fail here then your allocation on line 476 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
+  memcpy( ptr2, "THIS IS THE TEST STRING", 23);
+
+  int compare = memcmp( ptr2, "THIS IS THE TEST STRING", 23 );
+
+  TINYTEST_EQUAL( compare, 0); 
+  mavalloc_destroy( );
+  return 1;
+}
+
+/*
+*
+* TEST CASE 17: Test Next Fit and using the memory we were given 
+*
+*/
+int test_case_17()
+{
+  mavalloc_init( 65535, NEXT_FIT );
+
+  char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
+  char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
+
+  // If you fail here then your allocation on line 475 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you fail here then your allocation on line 476 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
+  memcpy( ptr2, "THIS IS THE TEST STRING", 23);
+
+  int compare = memcmp( ptr2, "THIS IS THE TEST STRING", 23 );
+
+  TINYTEST_EQUAL( compare, 0); 
+  mavalloc_destroy( );
+  return 1;
+}
+
+/*
+*
+* TEST CASE 18: Free then allocate and make sure we re-use the same block 
+*
+*/
+int test_case_18()
+{
+  mavalloc_init( 1536, FIRST_FIT );
+  char * ptr1 = ( char * ) mavalloc_alloc ( 1024 );
+  char * ptr2 = ( char * ) mavalloc_alloc ( 256 );
+
+  int size = mavalloc_size();
+
+  // If you failed here your allocation on line 558 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you failed here your allocation on line 559 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
+  mavalloc_free( ptr2 );
+  
+  char * ptr3 = ( char * ) mavalloc_alloc ( 256 );
+
+  // If you failed here your allocation on line 571 failed
+  TINYTEST_ASSERT( ptr3 ); 
+
+  // If you fail here then your first fit did not reuse the correct node 
+  TINYTEST_EQUAL( ptr2, ptr3 ); 
+
+  mavalloc_destroy( );
+  return 1;
+}
+
+/*
+*
+* TEST CASE 19: Test if your code safeguards against calling mavalloc_alloc 
+*               after destroy 
+*
+*/
+int test_case_19()
+{
+  mavalloc_init( 65535, BEST_FIT );
+  char * ptr = ( char * ) mavalloc_alloc ( 65535 );
+
+  int size = mavalloc_size();
+
+  // If you failed here your allocation on line 13 failed
+  TINYTEST_ASSERT( ptr ); 
+
+  // If you failed here your linked list did not have a single node
+  // check your mavalloc_alloc or mavalloc_size
+  TINYTEST_EQUAL( size, 1); 
+
+  mavalloc_destroy( );
+
+  char * ptr2 = ( char * ) mavalloc_alloc ( 65535 );
+
+  // You must return NULL on the alloc on line 605 since it occurs
+  // after the destroy
+  TINYTEST_EQUAL( ptr2, NULL); 
+
+  return 1;
+}
+
+/*
+*
+* TEST CASE 20: Test Next Fit and looping around the end of the linked list 
+*
+*/
+int test_case_20()
+{
+  mavalloc_init( 12000, WORST_FIT );
+
+  char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
+  char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
+
+  // If you fail here then your allocation on line 475 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you fail here then your allocation on line 476 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
+  mavalloc_free( ptr1 );
+
+  char * ptr3  = ( char * ) mavalloc_alloc ( 10000 );
+
+  TINYTEST_EQUAL( ptr1, ptr3 ); 
+  mavalloc_destroy( );
+  return 1;
+}
 
 int tinytest_setup(const char *pName)
 {
@@ -522,6 +669,11 @@ TINYTEST_START_SUITE(MavAllocTestSuite);
   TINYTEST_ADD_TEST(test_case_13,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_14,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_15,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_16,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_17,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_18,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_19,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_20,tinytest_setup,tinytest_teardown);
 TINYTEST_END_SUITE();
 
 TINYTEST_MAIN_SINGLE_SUITE(MavAllocTestSuite);

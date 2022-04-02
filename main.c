@@ -209,6 +209,15 @@ int test_case_6()
   char * buffer2 = ( char * ) mavalloc_alloc( 1 );
   char * ptr2    = ( char * ) mavalloc_alloc ( 6000 );
 
+  // If you failed here your allocation on line 206 failed
+  TINYTEST_ASSERT( ptr1 ); 
+  
+  // If you failed here your allocation on line 210 failed
+  TINYTEST_ASSERT( ptr2 ); 
+  
+  // If you failed here your allocation on line 208 failed
+  TINYTEST_ASSERT( ptr4 ); 
+
   mavalloc_free( ptr1 ); 
   mavalloc_free( ptr2 ); 
 
@@ -218,6 +227,7 @@ int test_case_6()
 
   char * ptr3 = ( char * ) mavalloc_alloc ( 1000 );
 
+  // If you failed here then your worst fit picked the wrong node on line 228
   TINYTEST_EQUAL( ptr1, ptr3 ); 
   mavalloc_destroy( );
   return 1;
@@ -237,9 +247,14 @@ int test_case_7()
   char * buffer2 = ( char * ) mavalloc_alloc( 1 );
   char * ptr2    = ( char * ) mavalloc_alloc ( 1500 );
 
+  // If you failed here your allocation on line 244 failed
   TINYTEST_ASSERT( ptr1 ); 
-  TINYTEST_ASSERT( ptr4 ); 
+  
+  // If you failed here your allocation on line 248 failed
   TINYTEST_ASSERT( ptr2 ); 
+  
+  // If you failed here your allocation on line 246 failed
+  TINYTEST_ASSERT( ptr4 ); 
 
   mavalloc_free( ptr1 ); 
   mavalloc_free( ptr2 ); 
@@ -249,8 +264,11 @@ int test_case_7()
   ptr4 = ptr4;
 
   char * ptr3 = ( char * ) mavalloc_alloc ( 1000 );
+
+  // If you failed here your allocation on line 266 failed
   TINYTEST_ASSERT( ptr3 ); 
 
+  // If you failed here your allocation on 266 picked the wrong node for Best Fit
   TINYTEST_EQUAL( ptr2, ptr3 ); 
   mavalloc_destroy( );
   return 1;
@@ -266,6 +284,8 @@ int test_case_8()
   mavalloc_init( 255, BEST_FIT );
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
+  // If you failed here your Best Fit allocation line 285 didn't return NULL like 
+  // it should have
   TINYTEST_EQUAL( ptr, NULL ); 
   mavalloc_destroy( );
   return 1;
@@ -281,6 +301,8 @@ int test_case_9()
   mavalloc_init( 255, FIRST_FIT );
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
+  // If you failed here your First Fit allocation on line 302 didn't return NULL like 
+  // it should have
   TINYTEST_EQUAL( ptr, NULL ); 
 
   mavalloc_destroy( );
@@ -297,6 +319,8 @@ int test_case_10()
   mavalloc_init( 255, WORST_FIT );
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
+  // If you failed here your Worst Fit allocation on line 320 didn't return NULL like 
+  // it should have
   TINYTEST_EQUAL( ptr, NULL ); 
 
   mavalloc_destroy( );

@@ -346,10 +346,19 @@ int test_case_11()
   char * buf4 = ( char * ) mavalloc_alloc ( 4 );
   char * ptr3 = ( char * ) mavalloc_alloc ( 1024 );
 
+  // if you failed here your allocation on line 339 failed
   TINYTEST_ASSERT( ptr1 ); 
+
+  // if you failed here your allocation on line 343 failed
   TINYTEST_ASSERT( ptr2 ); 
+
+  // if you failed here your allocation on line 347 failed
   TINYTEST_ASSERT( ptr3 ); 
+
+  // if you failed here your allocation on line 341 failed
   TINYTEST_ASSERT( ptr6 ); 
+
+  // if you failed here your allocation on line 345 failed
   TINYTEST_ASSERT( ptr7 ); 
 
   mavalloc_free( ptr1 ); 
@@ -358,6 +367,7 @@ int test_case_11()
 
   char * ptr5 = ( char * ) mavalloc_alloc ( 2000 );
 
+  // if you failed here your allocation on line 368 failed
   TINYTEST_ASSERT( ptr5 ); 
 
   ptr5 = ptr5;
@@ -370,9 +380,13 @@ int test_case_11()
 
   char * ptr4 = ( char * ) mavalloc_alloc ( 1000 );
 
+  // if you failed here your allocation on line 383 failed
   TINYTEST_ASSERT( ptr4 ); 
+
+  // if you failed here your allocation on line 347 failed
   TINYTEST_ASSERT( ptr3 ); 
 
+  // If you fail here then your Next Fit algorithm picked the wrong node
   TINYTEST_EQUAL( ptr3, ptr4 ); 
   mavalloc_destroy( );
   return 1;
@@ -389,6 +403,9 @@ int test_case_12()
   mavalloc_destroy( );
 
   int size = mavalloc_size();
+
+  // If you failed here then your destroy did not free
+  // your linked list
   TINYTEST_EQUAL( size, 0); 
   return 1;
 }
@@ -405,11 +422,16 @@ int test_case_13()
   char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
   char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
 
+  // If you failed here then your allocation on line 422 failed
   TINYTEST_ASSERT( ptr1 ); 
+
+  // If you failed here then your allocation on line 423 failed
   TINYTEST_ASSERT( ptr2 ); 
 
   int size = mavalloc_size();
 
+  // If you failed here then your next fit is not splitting free blocks
+  // correctly
   TINYTEST_EQUAL( size, 3); 
   mavalloc_destroy( );
   return 1;
@@ -428,9 +450,15 @@ int test_case_14()
 
   int size = mavalloc_size();
 
+  // If you failed here then your allocation on line 448 failed
   TINYTEST_ASSERT( ptr1 ); 
+
+  // If you failed here then your allocation on line 449 failed
   TINYTEST_ASSERT( ptr2 ); 
 
+  
+  // If you failed here then your best fit is not splitting free blocks
+  // correctly
   TINYTEST_EQUAL( size, 3); 
   mavalloc_destroy( );
   return 1;
@@ -447,11 +475,16 @@ int test_case_15()
   char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
   char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
 
+  // If you fail here then your allocation on line 475 failed
   TINYTEST_ASSERT( ptr1 ); 
+
+  // If you fail here then your allocation on line 476 failed
   TINYTEST_ASSERT( ptr2 ); 
 
   int size = mavalloc_size();
 
+  // If you failed here then your worst fit is not splitting free blocks
+  // correctly
   TINYTEST_EQUAL( size, 3); 
   mavalloc_destroy( );
   return 1;

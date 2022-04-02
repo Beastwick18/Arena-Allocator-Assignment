@@ -24,6 +24,7 @@
 #include "mavalloc.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 enum TYPE
 {
@@ -32,7 +33,7 @@ enum TYPE
 };
 
 struct Node {
-  int size;
+  size_t size;
   enum TYPE type;
   void * arena;
   struct Node * next;
@@ -41,11 +42,9 @@ struct Node {
 
 struct Node *alloc_list;
 
-struct Node *previous_node = NULL;
-
 void * arena;
 
-enum ALGORITHM allocation_algorithm = NEXT_FIT;
+enum ALGORITHM allocation_algorithm = FIRST_FIT;
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 {
@@ -56,7 +55,7 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
   alloc_list = ( struct Node * )malloc( sizeof( struct Node ));
 
   alloc_list -> arena = arena;
-  alloc_list -> size  = size;
+  alloc_list -> size  = ALIGN4(size);
   alloc_list -> type  = FREE;
   alloc_list -> next  = NULL;
   alloc_list -> prev  = NULL;
@@ -71,6 +70,7 @@ void mavalloc_destroy( )
   free( arena );
   
   // iterate over the linked list and free the nodes
+
   return;
 }
 
@@ -92,9 +92,9 @@ void * mavalloc_alloc( size_t size )
     exit(0);
   }
 
-  int aligned_size = ALIGN4( size );
+  size_t aligned_size = ALIGN4( size );
 
-  if( allocation_algorithm == FIRST_FIT || allocation_algorithm == NEXT_FIT )
+  if( allocation_algorithm == FIRST_FIT )
   {
     while( node )
     {
@@ -124,27 +124,16 @@ void * mavalloc_alloc( size_t size )
       node = node -> next;
     }
   }
+
+  // Implement Next Fit
+  // Implement Worst Fit
+  // Implement Best Fit
+
   return NULL;
 }
 
 void mavalloc_free( void * ptr )
 {
-  struct Node * node = alloc_list;
-  while( node )
-  {
-    if( node -> arena == ptr )
-    {
-      if( node -> type == FREE )
-      {
-        printf("Warning: Double free detected\n");
-      }
-
-      node -> type = FREE;
-
-      break;
-    }
-    node = node -> next;
-  }
   return;
 }
 

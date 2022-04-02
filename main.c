@@ -202,11 +202,11 @@ int test_case_5()
 */
 int test_case_6()
 {
-  mavalloc_init( 65535, WORST_FIT );
+  mavalloc_init( 71608, WORST_FIT );
   char * ptr1    = ( char * ) mavalloc_alloc ( 65535 );
-  char * buffer1 = ( char * ) mavalloc_alloc( 1 );
-  char * ptr4    = ( char * ) mavalloc_alloc ( 65 );
-  char * buffer2 = ( char * ) mavalloc_alloc( 1 );
+  char * buffer1 = ( char * ) mavalloc_alloc( 4 );
+  char * ptr4    = ( char * ) mavalloc_alloc ( 64 );
+  char * buffer2 = ( char * ) mavalloc_alloc( 4 );
   char * ptr2    = ( char * ) mavalloc_alloc ( 6000 );
 
   // If you failed here your allocation on line 206 failed

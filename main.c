@@ -235,6 +235,45 @@ int test_case_10()
   return 1;
 }
 
+/*
+*
+* TEST CASE 11: Test Next Fit and splitting free blocks
+*
+*/
+int test_case_11()
+{
+  mavalloc_init( 4144, NEXT_FIT );
+
+  char * ptr1 = ( char * ) mavalloc_alloc ( 1024 );
+  char * buf1 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr6 = ( char * ) mavalloc_alloc ( 16 );
+  char * buf2 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr2 = ( char * ) mavalloc_alloc ( 2048 );
+  char * buf3 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr7 = ( char * ) mavalloc_alloc ( 16 );
+  char * buf4 = ( char * ) mavalloc_alloc ( 4 );
+  char * ptr3 = ( char * ) mavalloc_alloc ( 1024 );
+
+  mavalloc_free( ptr1 ); 
+  mavalloc_free( ptr2 ); 
+  mavalloc_free( ptr3 ); 
+
+  char * ptr5 = ( char * ) mavalloc_alloc ( 6000 );
+
+  ptr5 = ptr5;
+  ptr7 = ptr7;
+  ptr6 = ptr6;
+  buf1 = buf1;
+  buf2 = buf2;
+  buf3 = buf3;
+  buf4 = buf4;
+
+  char * ptr4 = ( char * ) mavalloc_alloc ( 1000 );
+
+  TINYTEST_EQUAL( ptr3, ptr4 ); 
+  return 1;
+}
+
 int tinytest_setup(const char *pName)
 {
     fprintf( stderr, "tinytest_setup(%s)\n", pName);
@@ -261,6 +300,7 @@ TINYTEST_START_SUITE(MavAllocTestSuite);
   TINYTEST_ADD_TEST(test_case_8,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_9,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_10,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_11,tinytest_setup,tinytest_teardown);
 TINYTEST_END_SUITE();
 
 TINYTEST_MAIN_SINGLE_SUITE(MavAllocTestSuite);

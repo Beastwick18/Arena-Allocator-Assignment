@@ -618,21 +618,22 @@ int test_case_19()
 */
 int test_case_20()
 {
-  mavalloc_init( 12000, WORST_FIT );
+  mavalloc_init( 12000, NEXT_FIT );
 
   char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
   char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
 
-  // If you fail here then your allocation on line 475 failed
+  // If you fail here then your allocation on line 623 failed
   TINYTEST_ASSERT( ptr1 ); 
 
-  // If you fail here then your allocation on line 476 failed
+  // If you fail here then your allocation on line 624 failed
   TINYTEST_ASSERT( ptr2 ); 
 
   mavalloc_free( ptr1 );
 
   char * ptr3  = ( char * ) mavalloc_alloc ( 10000 );
 
+  // Your next fit picked the wrong node if this line fails
   TINYTEST_EQUAL( ptr1, ptr3 ); 
   mavalloc_destroy( );
   return 1;

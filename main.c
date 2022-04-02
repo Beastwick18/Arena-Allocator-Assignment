@@ -308,7 +308,6 @@ int test_case_12()
   mavalloc_destroy( );
 
   int size = mavalloc_size();
-  printf("%d %d", size, 0 );
   TINYTEST_EQUAL( size, 0); 
   return 1;
 }

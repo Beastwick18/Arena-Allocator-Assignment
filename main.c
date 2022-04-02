@@ -14,6 +14,11 @@ int test_case_1()
 
   int size = mavalloc_size();
 
+  // If you failed here your allocation on line 13 failed
+  TINYTEST_ASSERT( ptr ); 
+
+  // If you failed here your linked list did not have a single node
+  // check your mavalloc_alloc or mavalloc_size
   TINYTEST_EQUAL( size, 1); 
   mavalloc_destroy( );
   return 1;
@@ -34,10 +39,22 @@ int test_case_2()
   char * ptr1    = (char*)mavalloc_alloc( 65535 );
   char * ptr2    = (char*)mavalloc_alloc( 65 );
 
+  // If you failed here your allocation on line 37 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you failed here your allocation on line 38 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
   mavalloc_free( ptr1 );
   mavalloc_free( ptr2 );
 
   int size = mavalloc_size();
+
+  // If you failed here your linked list did not have a single node
+  // check your mavalloc_alloc or mavalloc_size and make sure you
+  // are combining adjacent free nodes and counting your link list
+  // correctly
+
   TINYTEST_EQUAL( size, 1 ); 
 
   mavalloc_destroy( );
@@ -59,10 +76,22 @@ int test_case_3()
   char * ptr1    = (char*)mavalloc_alloc( 65536 );
   char * ptr2    = (char*)mavalloc_alloc( 64 );
 
+  // If you failed here your allocation on line 76 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you failed here your allocation on line 77 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
   mavalloc_free( ptr2 );
   mavalloc_free( ptr1 );
 
   int size = mavalloc_size();
+
+  // If you failed here your linked list did not have a single node
+  // check your mavalloc_alloc or mavalloc_size and make sure you
+  // are combining adjacent free nodes and counting your link list
+  // correctly
+
   TINYTEST_EQUAL( size, 1 ); 
 
   mavalloc_destroy( );
@@ -82,6 +111,17 @@ int test_case_4()
   char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
 
   int size = mavalloc_size();
+
+  // If you failed here your allocation on line 110 failed
+  TINYTEST_ASSERT( ptr1 ); 
+
+  // If you failed here your allocation on line 111 failed
+  TINYTEST_ASSERT( ptr2 ); 
+
+  // If you failed here your linked list did not have three nodes
+  // check your mavalloc_alloc or mavalloc_size and make sure you
+  // are allocating and splitting nodes and counting your link list
+  // correctly
 
   TINYTEST_EQUAL( size, 3); 
   mavalloc_destroy( );
@@ -108,10 +148,19 @@ int test_case_5()
   char * buf4 = ( char * ) mavalloc_alloc ( 4 );
   char * ptr3 = ( char * ) mavalloc_alloc ( 1024 );
 
+  // If you failed here your allocation on line 141 failed
   TINYTEST_ASSERT( ptr1 ); 
+  
+  // If you failed here your allocation on line 145 failed
   TINYTEST_ASSERT( ptr2 ); 
+  
+  // If you failed here your allocation on line 149 failed
   TINYTEST_ASSERT( ptr3 ); 
+  
+  // If you failed here your allocation on line 143 failed
   TINYTEST_ASSERT( ptr6 ); 
+  
+  // If you failed here your allocation on line 147 failed
   TINYTEST_ASSERT( ptr7 ); 
 
   mavalloc_free( ptr1 ); 
@@ -120,6 +169,7 @@ int test_case_5()
 
   char * ptr5 = ( char * ) mavalloc_alloc ( 2000 );
 
+  // If you failed here your allocation on line 170 failed
   TINYTEST_ASSERT( ptr5 ); 
 
   ptr5 = ptr5;
@@ -132,9 +182,14 @@ int test_case_5()
 
   char * ptr4 = ( char * ) mavalloc_alloc ( 1000 );
 
+  // If you failed here your allocation on line 183 failed
   TINYTEST_ASSERT( ptr4 ); 
+
+  // If you failed here your allocation on line 149 failed
   TINYTEST_ASSERT( ptr3 ); 
 
+  // If you failed here your Next Fit algorithm is not choosing
+  // the correct hole 
   TINYTEST_EQUAL( ptr3, ptr4 ); 
   mavalloc_destroy( );
   return 1;
@@ -227,6 +282,7 @@ int test_case_9()
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
   TINYTEST_EQUAL( ptr, NULL ); 
+
   mavalloc_destroy( );
   return 1;
 }
@@ -242,6 +298,7 @@ int test_case_10()
   char * ptr = ( char * ) mavalloc_alloc ( 1000 );
 
   TINYTEST_EQUAL( ptr, NULL ); 
+
   mavalloc_destroy( );
   return 1;
 }

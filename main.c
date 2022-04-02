@@ -312,6 +312,70 @@ int test_case_12()
   return 1;
 }
 
+/*
+*
+* TEST CASE 13: Test Next Fit and splitting free blocks
+*
+*/
+int test_case_13()
+{
+  mavalloc_init( 65535, NEXT_FIT );
+
+  char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
+  char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
+
+  TINYTEST_ASSERT( ptr1 ); 
+  TINYTEST_ASSERT( ptr2 ); 
+
+  int size = mavalloc_size();
+
+  TINYTEST_EQUAL( size, 3); 
+  mavalloc_destroy( );
+  return 1;
+}
+/*
+*
+* TEST CASE 14: Test Best Fit and splitting free blocks
+*
+*/
+int test_case_14()
+{
+  mavalloc_init( 65535, BEST_FIT );
+
+  char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
+  char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
+
+  int size = mavalloc_size();
+
+  TINYTEST_ASSERT( ptr1 ); 
+  TINYTEST_ASSERT( ptr2 ); 
+
+  TINYTEST_EQUAL( size, 3); 
+  mavalloc_destroy( );
+  return 1;
+}
+/*
+*
+* TEST CASE 15: Test Worst Fit and splitting free blocks
+*
+*/
+int test_case_15()
+{
+  mavalloc_init( 65535, WORST_FIT );
+
+  char * ptr1  = ( char * ) mavalloc_alloc ( 10000 );
+  char * ptr2  = ( char * ) mavalloc_alloc ( 65 );
+
+  TINYTEST_ASSERT( ptr1 ); 
+  TINYTEST_ASSERT( ptr2 ); 
+
+  int size = mavalloc_size();
+
+  TINYTEST_EQUAL( size, 3); 
+  mavalloc_destroy( );
+  return 1;
+}
+
 
 int tinytest_setup(const char *pName)
 {
@@ -341,6 +405,9 @@ TINYTEST_START_SUITE(MavAllocTestSuite);
   TINYTEST_ADD_TEST(test_case_10,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_11,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_12,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_13,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_14,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_15,tinytest_setup,tinytest_teardown);
 TINYTEST_END_SUITE();
 
 TINYTEST_MAIN_SINGLE_SUITE(MavAllocTestSuite);

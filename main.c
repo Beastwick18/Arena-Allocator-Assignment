@@ -193,6 +193,48 @@ int test_case_7()
   return 1;
 }
 
+/*
+*
+* TEST CASE 8: Test allocating more than we should 
+*
+*/
+int test_case_8()
+{
+  mavalloc_init( 255, BEST_FIT );
+  char * ptr = ( char * ) mavalloc_alloc ( 1000 );
+
+  TINYTEST_EQUAL( ptr, NULL ); 
+  return 1;
+}
+
+/*
+*
+* TEST CASE 9: Test allocating more than we should 
+*
+*/
+int test_case_9()
+{
+  mavalloc_init( 255, FIRST_FIT );
+  char * ptr = ( char * ) mavalloc_alloc ( 1000 );
+
+  TINYTEST_EQUAL( ptr, NULL ); 
+  return 1;
+}
+
+/*
+*
+* TEST CASE 10: Test allocating more than we should 
+*
+*/
+int test_case_10()
+{
+  mavalloc_init( 255, WORST_FIT );
+  char * ptr = ( char * ) mavalloc_alloc ( 1000 );
+
+  TINYTEST_EQUAL( ptr, NULL ); 
+  return 1;
+}
+
 int tinytest_setup(const char *pName)
 {
     fprintf( stderr, "tinytest_setup(%s)\n", pName);
@@ -216,6 +258,9 @@ TINYTEST_START_SUITE(MavAllocTestSuite);
   TINYTEST_ADD_TEST(test_case_5,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_6,tinytest_setup,tinytest_teardown);
   TINYTEST_ADD_TEST(test_case_7,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_8,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_9,tinytest_setup,tinytest_teardown);
+  TINYTEST_ADD_TEST(test_case_10,tinytest_setup,tinytest_teardown);
 TINYTEST_END_SUITE();
 
 TINYTEST_MAIN_SINGLE_SUITE(MavAllocTestSuite);

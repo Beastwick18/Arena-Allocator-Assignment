@@ -41,6 +41,8 @@ struct Node {
 };
 
 struct Node *alloc_list;
+struct Node *previous_node;
+
 
 void * arena;
 

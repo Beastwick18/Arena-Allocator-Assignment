@@ -2,7 +2,6 @@
 #include "tinytest.h"
 #include <stdio.h>
 #include <string.h>
-
 /*
 *
 * TEST CASE 1: Test init and a single allocation

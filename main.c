@@ -39,10 +39,10 @@ int test_case_2()
   char * ptr1    = (char*)mavalloc_alloc( 65535 );
   char * ptr2    = (char*)mavalloc_alloc( 65 );
 
-  // If you failed here your allocation on line 37 failed
+  // If you failed here your allocation on line 39 failed
   TINYTEST_ASSERT( ptr1 ); 
 
-  // If you failed here your allocation on line 38 failed
+  // If you failed here your allocation on line 40 failed
   TINYTEST_ASSERT( ptr2 ); 
 
   mavalloc_free( ptr1 );

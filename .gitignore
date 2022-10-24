@@ -1,3 +1,5 @@
 unit_test
+mavalloc_solution.c
+testprog
 *.o
 *.a

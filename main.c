@@ -557,8 +557,6 @@ int test_case_18()
   char * ptr1 = ( char * ) mavalloc_alloc ( 1024 );
   char * ptr2 = ( char * ) mavalloc_alloc ( 256 );
 
-  int size = mavalloc_size();
-
   // If you failed here your allocation on line 558 failed
   TINYTEST_ASSERT( ptr1 ); 
 

@@ -13,7 +13,7 @@ unit_test: main.o libmavalloc.a
 	gcc -o unit_test main.o -L. -lmavalloc -g
 
 main.o: main.c
-	gcc  -c  -Wall -Wno-nonnull main.c -g 
+	gcc  -c  -Wall -Wno-self-assign -Wno-nonnull main.c -g 
 
 testprog.o: testprog.c
 	gcc  -c -Wall testprog.c -g

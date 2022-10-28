@@ -25,14 +25,28 @@
 #include <stddef.h>
 
 #define ALIGN4(s)  (((((s) - 1) >> 2) << 2) + 4)
+#define MAX_ALLOC 10000
 
-enum ALGORITHM
-{
+enum ALGORITHM {
   NEXT_FIT = 0,
   BEST_FIT,
   WORST_FIT,
   FIRST_FIT
-}; 
+};
+
+enum TYPE {
+  H = 0,
+  P
+};
+
+typedef struct {
+  size_t size;
+  int in_use;
+  enum TYPE type;
+  void *arena;
+  int next;
+  int prev;
+} Node;
 
 /**
  * @brief Initialize the allocation arena and set the algorithm type

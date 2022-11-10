@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void *arena;
+static void *arena = NULL;
 static Node list[MAX_ALLOC];
 static int last_node;
 static enum ALGORITHM alg;
@@ -117,15 +117,21 @@ void mavalloc_free( void * ptr ) {
         list[prev].next = next;
         list[prev].size += list[curr].size;
         list[curr].in_use = 0;
+        list[curr].next = -1;
+        list[curr].prev = -1;
+        
         curr = prev;
       }
       if(next != -1 && list[next].type == H) {
         list[curr].next = list[next].next;
         list[curr].size += list[next].size;
         list[next].in_use = 0;
+        list[next].next = -1;
+        list[next].prev = -1;
       }
       break;
     }
+    curr = list[curr].next;
   } while(curr != -1);
 }
 
@@ -135,11 +141,15 @@ int mavalloc_size( ) {
   
   int number_of_nodes = 0;
   
-  int next = 0;
-  while(next != -1 && list[next].type == P) {
-    number_of_nodes++;
-    next = list[next].next;
-  } 
+  for(int i = 0; i < MAX_ALLOC; i++) {
+    if(list[i].in_use == 1)
+        number_of_nodes++;
+  }
+  // int next = 0;
+  // while(next != -1 && list[next].type == P) {
+  //   number_of_nodes++;
+  //   next = list[next].next;
+  // } 
 
   return number_of_nodes;
 }

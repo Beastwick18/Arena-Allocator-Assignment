@@ -55,6 +55,7 @@ int test_case_2()
   // are combining adjacent free nodes and counting your link list
   // correctly
 
+  printf("1 -- %d\n", size);
   TINYTEST_EQUAL( size, 1 ); 
 
   mavalloc_destroy( );

@@ -189,7 +189,7 @@ void * mavalloc_alloc_best_fit( size_t size ) {
       return NULL;
     
     list[next_empty].next = list[best_idx].next;
-    list[next_empty].prev = next;
+    list[next_empty].prev = best_idx;
     list[next_empty].size = list[best_idx].size - size;
     list[next_empty].arena = list[best_idx].arena + size;
     list[next_empty].type = H;
@@ -226,7 +226,7 @@ void * mavalloc_alloc_worst_fit( size_t size ) {
       return NULL;
     
     list[next_empty].next = list[worst_idx].next;
-    list[next_empty].prev = next;
+    list[next_empty].prev = worst_idx;
     list[next_empty].size = list[worst_idx].size - size;
     list[next_empty].arena = list[worst_idx].arena + size;
     list[next_empty].type = H;
@@ -270,16 +270,6 @@ void mavalloc_free( void * ptr ) {
       int prev = list[curr].prev;
       int next = list[curr].next;
       list[curr].type = H;
-      if(prev != -1 && list[prev].type == H) {
-        list[prev].next = next;
-        list[prev].size += list[curr].size;
-        list[next].prev = prev;
-        list[curr].in_use = 0;
-        list[curr].next = -1;
-        list[curr].prev = -1;
-        
-        curr = prev;
-      }
       if(next != -1 && list[next].type == H) {
         list[curr].next = list[next].next;
         if(list[next].next != -1)
@@ -288,6 +278,16 @@ void mavalloc_free( void * ptr ) {
         list[next].in_use = 0;
         list[next].next = -1;
         list[next].prev = -1;
+        
+        next = list[next].next;
+      }
+      if(prev != -1 && list[prev].type == H) {
+        list[prev].next = next;
+        list[prev].size += list[curr].size;
+        list[next].prev = prev;
+        list[curr].in_use = 0;
+        list[curr].next = -1;
+        list[curr].prev = -1;
       }
       break;
     }
@@ -296,6 +296,8 @@ void mavalloc_free( void * ptr ) {
 }
 
 int mavalloc_size( ) {
+  if(!arena)
+    return 0;
   int number_of_nodes = 0;
   
   for(int i = 0; i < MAX_ALLOC; i++) {

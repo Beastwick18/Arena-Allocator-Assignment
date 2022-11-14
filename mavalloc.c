@@ -23,6 +23,24 @@
 #include "mavalloc.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
+#define MAX_ALLOC 10000
+
+enum TYPE {
+  H = 0,
+  P
+};
+
+typedef struct {
+  size_t size;
+  int in_use;
+  enum TYPE type;
+  void *arena;
+  int next;
+  int prev;
+} Node;
 
 static void *arena = NULL;
 static Node list[MAX_ALLOC];
@@ -34,25 +52,21 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm ) {
   if(size < 0)
     return -1;
   
-  arena = malloc(ALIGN4(size));
+  size = ALIGN4(size);
+  arena = malloc(size);
   // Return -1 if the allocation fails
   if(!arena)
     return -1;
   
-  // Initialize nodes
-  for(int i = 0; i < MAX_ALLOC; i++) {
-    list[i].size = 0;
-    list[i].in_use = 0;
-    list[i].arena = NULL;
-    list[i].next = -1;
-    list[i].prev = -1;
-    list[i].type = H;
-  }
+  memset(list, 0, MAX_ALLOC * sizeof(Node));
   
   // Setup first node to have entire arena
   list[0].size = size;
   list[0].in_use = 1;
   list[0].arena = arena;
+  list[0].next = -1;
+  list[0].prev = -1;
+  list[0].type = H;
   
   last_node = 0;
   alg = algorithm;
@@ -62,7 +76,6 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm ) {
 void mavalloc_destroy( ) {
   free(arena);
   arena = NULL;
-  return;
 }
 
 int find_next_empty() {
@@ -74,111 +87,146 @@ int find_next_empty() {
 }
 
 void * mavalloc_alloc_first_fit( size_t size ) {
-  int next = 0;
+  int current = 0;
   do {
-    if(list[next].in_use && list[next].type == H && size <= list[next].size) {
-      int next_empty = find_next_empty();
-      // Too many allocations, no empty nodes
-      if(next_empty == -1) {
-        return NULL;
+    if(list[current].in_use && list[current].type == H && size <= list[current].size) {
+      // If there will still be space left over after taking up the
+      // requested allocations space, create a new node in the list
+      // just after this one containing that left over space
+      if(list[current].size > size) {
+        // Find the next node in the list that is not being used
+        int next_empty = find_next_empty();
+        // Too many allocations, no empty nodes
+        if(next_empty == -1) {
+          return NULL;
+        }
+        
+        list[next_empty].next = list[current].next;
+        list[next_empty].prev = current;
+        // Set its size to the amount left over after allocation
+        list[next_empty].size = list[current].size - size;
+        // Change arena starting point to be after our block
+        list[next_empty].arena = list[current].arena + size;
+        list[next_empty].type = H;
+        list[next_empty].in_use = 1;
+        
+        list[current].next = next_empty;
       }
-      list[next_empty].next = list[next].next;
-      list[next_empty].prev = next;
-      list[next_empty].size = list[next].size - size;
-      list[next_empty].arena = list[next].arena + size;
-      list[next_empty].type = H;
-      list[next_empty].in_use = 1;
+      list[current].size = size;
+      list[current].type = P;
       
-      list[next].next = next_empty;
-      list[next].size = size;
-      list[next].type = P;
-      return list[next].arena;
+      return list[current].arena;
     }
-    next = list[next].next;
-  } while(next != -1);
+    current = list[current].next;
+  } while(current != -1);
   
   // only return NULL on failure
   return NULL;
 }
 
 void * mavalloc_alloc_next_fit( size_t size ) {
-  int next = last_node;
+  // Start at last node we left off on in previous allocation
+  int current = last_node;
   
-  // Attempt 1 (from last_node to end of list)
+  // Attempt to find a node that can contain our allocation,
+  // starting from the last node we left off on in our
+  // previous allocation
   do {
-    if(list[next].in_use && list[next].type == H && size <= list[next].size) {
-      if(list[next].size > size) {
+    // If the current node is in use, is a hole, and can contain our allocation,
+    // then use it for the allocation
+    if(list[current].in_use && list[current].type == H && size <= list[current].size) {
+      // If there will still be space left over after taking up the
+      // requested allocations space, create a new node in the list
+      // just after this one containing that left over space
+      if(list[current].size > size) {
+        // Find the next node in the list that is not being used
         int next_empty = find_next_empty();
         // Too many allocations, no empty nodes
         if(next_empty == -1) {
           return NULL;
         }
         
-        list[next_empty].next = list[next].next;
-        list[next_empty].prev = next;
-        list[next_empty].size = list[next].size - size;
-        list[next_empty].arena = list[next].arena + size;
+        list[next_empty].next = list[current].next;
+        list[next_empty].prev = current;
+        list[next_empty].size = list[current].size - size;
+        list[next_empty].arena = list[current].arena + size;
         list[next_empty].type = H;
         list[next_empty].in_use = 1;
         
-        list[next].next = next_empty;
+        list[current].next = next_empty;
       }
-      list[next].size = size;
-      list[next].type = P;
+      list[current].size = size;
+      list[current].type = P;
       
-      last_node = next;
+      last_node = current;
       
-      return list[next].arena;
+      return list[current].arena;
     }
-    next = list[next].next;
-  } while(next != -1);
+    current = list[current].next;
+  } while(current != -1);
   
-  // Attempt 2 (from beginning of list to last_node)
-  next = 0;
+  // If we've made it here, that means we were unable to find a node between
+  // the last node we left off on and the end of the list. Now, we will try
+  // to find a node starting from the beginning of the list up to the last
+  // node we left off on (the part of the list we haven't checked yet)
+  current = 0;
   do {
-    if(list[next].in_use && list[next].type == H && size <= list[next].size) {
-      if(list[next].size > size) {
+    // If the current node is in use, is a hole, and can contain our allocation,
+    // then use it for the allocation
+    if(list[current].in_use && list[current].type == H && size <= list[current].size) {
+      // If there will still be space left over after taking up the
+      // requested allocations space, create a new node in the list
+      // just after this one containing that left over space
+      if(list[current].size > size) {
         int next_empty = find_next_empty();
         // Too many allocations, no empty nodes
         if(next_empty == -1) {
           return NULL;
         }
-        list[next_empty].next = list[next].next;
-        list[next_empty].prev = next;
-        list[next_empty].size = list[next].size - size;
-        list[next_empty].arena = list[next].arena + size;
+        list[next_empty].next = list[current].next;
+        list[next_empty].prev = current;
+        list[next_empty].size = list[current].size - size;
+        list[next_empty].arena = list[current].arena + size;
         list[next_empty].type = H;
         list[next_empty].in_use = 1;
         
-        list[next].next = next_empty;
+        list[current].next = next_empty;
       }
       
-      list[next].size = size;
-      list[next].type = P;
+      list[current].size = size;
+      list[current].type = P;
       
-      last_node = next;
+      last_node = current;
       
-      return list[next].arena;
+      return list[current].arena;
     }
-    next = list[next].next;
-  } while(next != -1 && next != last_node);
+    current = list[current].next;
+  } while(current != -1 && current != last_node);
   
-  // only return NULL on failure
+  // Return NULL as we were unable to find a block that can hold our allocation
   return NULL;
 }
 
 void * mavalloc_alloc_best_fit( size_t size ) {
-  int next = 0, best_idx = -1;
+  int current = 0, best_idx = -1;
   size_t best_size;
   do {
-    if(list[next].in_use && list[next].type == H && size <= list[next].size && (best_idx == -1 || list[next].size - size < best_size)) {
-      best_idx = next;
-      best_size = list[next].size - size;
+    // If the current node is in use, is a hold, is large enough to hold our allocation,
+    // and either the best_idx is -1 (meaning we have not yet found a spot for our allocation)
+    // or the amount of space left over after allocating in this block is less than 
+    // our current "best size", select this as the new "best" block
+    if(list[current].in_use && list[current].type == H && size <= list[current].size &&
+        (best_idx == -1 || list[current].size - size < best_size)) {
+      best_idx = current;
+      best_size = list[current].size - size;
+      if(best_size == 0)
+        break;
     }
-    next = list[next].next;
-  } while(next != -1);
+    // Move to next node in list
+    current = list[current].next;
+  } while(current != -1);
   
-  // only return NULL on failure
+  // Return NULL if we were unable to find a block that can contain our allocation
   if(best_idx == -1)
     return NULL;
   
@@ -205,15 +253,20 @@ void * mavalloc_alloc_best_fit( size_t size ) {
 }
 
 void * mavalloc_alloc_worst_fit( size_t size ) {
-  int next = 0, worst_idx = -1;
+  int current = 0, worst_idx = -1;
   size_t worst_size = 0;
   do {
-    if(list[next].in_use && list[next].type == H && size <= list[next].size && (worst_idx == -1 || list[next].size - size > worst_size)) {
-      worst_idx = next;
-      worst_size = list[next].size - size;
+    // If the current node is in use, is a hold, is large enough to hold our allocation,
+    // and either the worst_idx is -1 (meaning we have not yet found a spot for our allocation)
+    // or the amount of space left over after allocating in this block is greater than 
+    // our current "worst size", select this as the new "worst" block
+    if(list[current].in_use && list[current].type == H && size <= list[current].size &&
+        (worst_idx == -1 || list[current].size - size > worst_size)) {
+      worst_idx = current;
+      worst_size = list[current].size - size;
     }
-    next = list[next].next;
-  } while(next != -1);
+    current = list[current].next;
+  } while(current != -1);
   
   // only return NULL on failure
   if(worst_idx == -1)
@@ -241,12 +294,18 @@ void * mavalloc_alloc_worst_fit( size_t size ) {
 }
 
 void * mavalloc_alloc( size_t size ) {
+  // If arena is NULL, we have destroyed it or not yet initialized.
+  // The allocation will fail in this case
   if(!arena)
     return NULL;
-  if(size < 0)
+  
+  // Make sure size is 4 byte aligned
+  size = ALIGN4(size);
+  
+  // Allocation fails if size is not positive
+  if(size <= 0)
     return NULL;
-  // size = ALIGN4(size);
-  // return mavalloc_alloc_first_fit(size);
+  
   switch(alg) {
     case FIRST_FIT:
       return mavalloc_alloc_first_fit(size);
@@ -261,7 +320,7 @@ void * mavalloc_alloc( size_t size ) {
 }
 
 void mavalloc_free( void * ptr ) {
-  if(!ptr)
+  if(!arena || !ptr)
     return;
   
   int curr = 0;
@@ -276,8 +335,8 @@ void mavalloc_free( void * ptr ) {
           list[list[next].next].prev = curr;
         list[curr].size += list[next].size;
         list[next].in_use = 0;
-        list[next].next = -1;
-        list[next].prev = -1;
+        // list[next].next = -1;
+        // list[next].prev = -1;
         
         next = list[next].next;
       }
@@ -286,10 +345,10 @@ void mavalloc_free( void * ptr ) {
         list[prev].size += list[curr].size;
         list[next].prev = prev;
         list[curr].in_use = 0;
-        list[curr].next = -1;
-        list[curr].prev = -1;
+        // list[curr].next = -1;
+        // list[curr].prev = -1;
       }
-      break;
+      return;
     }
     curr = list[curr].next;
   } while(curr != -1);
@@ -300,15 +359,15 @@ int mavalloc_size( ) {
     return 0;
   int number_of_nodes = 0;
   
-  for(int i = 0; i < MAX_ALLOC; i++) {
-    if(list[i].in_use == 1)
-        number_of_nodes++;
-  }
-  // int next = 0;
-  // while(next != -1 && list[next].type == P) {
-  //   number_of_nodes++;
-  //   next = list[next].next;
-  // } 
+  // for(int i = 0; i < MAX_ALLOC; i++) {
+  //   if(list[i].in_use == 1)
+  //       number_of_nodes++;
+  // }
+  int next = 0;
+  while(next != -1) {
+    number_of_nodes++;
+    next = list[next].next;
+  } 
 
   return number_of_nodes;
 }

@@ -43,7 +43,8 @@ int main( int argc, char * argv[] )
   mavalloc_destroy();
   
   clock_t end = clock();
-  double elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+  // Get elapsed time in milliseconds
+  double elapsed = ((double) (end - start)) / ((double)CLOCKS_PER_SEC/1000);
   
   printf("%f\n", elapsed);
   return 0;

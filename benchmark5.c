@@ -7,10 +7,9 @@ int main( int argc, char * argv[] )
 {
   clock_t start = clock();
   
-  // mavalloc_init(131072, BEST_FIT);
-  
   void *ptrs[1000];
   
+  // 1 large allocation, immediatly free'd, many times
   for(int i = 0; i < 1000; i++) {
     ptrs[0] = malloc(131072);
     free(ptrs[0]);
@@ -40,7 +39,8 @@ int main( int argc, char * argv[] )
   }
   
   clock_t end = clock();
-  double elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+  // Get elapsed time in milliseconds
+  double elapsed = ((double) (end - start)) / ((double)CLOCKS_PER_SEC/1000);
   
   printf("%f\n", elapsed);
   return 0;

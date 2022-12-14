@@ -1,0 +1,17 @@
+# Arena-Allocator-Assignment
+- This is my arena allocator assignment for my Operating Systems class (CSE3320)
+- The makefile produces 6 executables:
+  - unit_test
+  - benchmark1
+  - benchmark2
+  - benchmark3
+  - benchmark4
+  - benchmark5
+- unit_test runs a series of tests on the allocator to make sure it runs properly
+- benchmark1-benchmark4 test each different allocation method. Allocation methods are as follows:
+  - `NEXT_FIT`
+  - `BEST_FIT`
+  - `FIRST_FIT`
+  - `WORST_FIT`
+- benchmark5 tests the same code but using malloc instead of the arena allocator
+- Each benchmark outputs an integer representing the time in milliseconds that the program took to execute
